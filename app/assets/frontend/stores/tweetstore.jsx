@@ -1,14 +1,15 @@
 import React from 'react';
 import AppDispatcher from "../dispatcher";
 import ActionTypes from "../constants";
+import AppEventEmitter from "./appeventemitter";
 
-import { EventEmitter } from "events"; //imported from npm install flux events
+
 
 
 let _tweets = [];
-const CHANGE_EVENT = "CHANGE";
 
-class TweetEventEmitter extends EventEmitter {
+
+class TweetEventEmitter extends AppEventEmitter {
 
 	getAll(){
 	 	return _tweets.map(tweet => {
@@ -16,16 +17,6 @@ class TweetEventEmitter extends EventEmitter {
 	 		return tweet;
 	 	});
 	}
-	emitChange(){
-		this.emit(CHANGE_EVENT);
-	}
-	addChangeListener(callback){
-		this.on(CHANGE_EVENT, callback);
-	}
-	removeChangeListener(callback){
-		this.removeListener(CHANGE_EVENT, callback);
-	}
-
 }
 
 let TweetStore = new TweetEventEmitter();

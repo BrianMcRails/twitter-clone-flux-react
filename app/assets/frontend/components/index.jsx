@@ -1,8 +1,10 @@
 import React from 'react';
+import { Link } from 'react-router'; //since we used link, we need to import link property from router library
 import TweetBox from './tweetbox';
 import TweetsList from './tweetslist';
 import TweetActions from '../actions/tweetactions';
 import TweetStore from '../stores/tweetstore';
+import Friends from './friends';
 
 TweetActions.getAllTweets();
 let getAppState = () => {
@@ -52,8 +54,11 @@ export default class Index extends React.Component {
 	render() {
 		return (
 			<div className="container">
+			<Link to="/follow">Who to follow</Link>
+			<Link to="/friends">My Friends</Link>
 			<TweetBox />
 			<TweetsList tweets={this.state.tweetsList}/>
+			<Friends />
 			</div>
 		);
 	}
