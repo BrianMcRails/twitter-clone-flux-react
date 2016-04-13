@@ -34,6 +34,9 @@ AppDispatcher.register( action => {
 		case ActionTypes.RECEIVED_ONE_TWEET:
 		_tweets.unshift(action.rawTweet);
 		TweetStore.emitChange();
+		case ActionTypes.RECEIVED_ONE_RETWEET:
+		_tweets.unshift(action.rawRetweet);
+		TweetStore.emitChange();
 		default:
 	}
 });

@@ -12,4 +12,15 @@ class Tweet < ActiveRecord::Base
    	def gravatar
 		user.gravatar
 	end
+
+
+	def self.stream_for(current_user_id)
+		joins(:user)
+		.where(["users.id = :current_user_id or users.id in (
+			select user_id from followers
+			where followed_by = :current_user_id
+			)", {current_user_id: current_user_id }])
+		.all
+		.order(created_at: :desc)
+	end
 end

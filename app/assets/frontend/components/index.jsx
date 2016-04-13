@@ -6,7 +6,7 @@ import TweetActions from '../actions/tweetactions';
 import TweetStore from '../stores/tweetstore';
 import Friends from './friends';
 
-TweetActions.getAllTweets();
+
 let getAppState = () => {
 	return {tweetsList: TweetStore.getAll() };
 }
@@ -18,26 +18,8 @@ export default class Index extends React.Component {
 		this._onChange = this._onChange.bind(this);
 
 	}
-	// formattedTweets(tweetsList){
-	// 	let formattedList = tweetsList.map(tweet => {
-	// 		tweet.formattedDate = moment(tweet.created_at).fromNow();
-	// 		return tweet;
-	// 	});
-	// 	return {
-	// 		tweetsList: formattedList
-	// 	};
-	// }
-	addTweet(tweetToAdd) {
-		// $.post("/tweets", {body: tweetToAdd})
-		// .success( savedTweet => {
-		// 	let newTweetsList = this.state.tweetsList;
-		// 	newTweetsList.unshift(savedTweet);
-		// 	//newTweetsList.unshift({id: Date.now(), name: 'Guest', body: tweetToAdd });
-		// 	this.setState(this.formattedTweets(newTweetsList));
-		// })
-		// .error(error => console.log(error));
-	}
 	componentDidMount() {
+		TweetActions.getAllTweets();
 		TweetStore.addChangeListener(this._onChange);
 		// $.ajax("/tweets")
 		// .success(data => this.setState(this.formattedTweets(data)))
