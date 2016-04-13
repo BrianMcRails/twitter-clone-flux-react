@@ -16,10 +16,22 @@ export default {
 			rawTweet //same as rawTweet: rawTweet
 		})
 	},
+	receivedOneRetweet(rawRetweet){
+		AppDispatcher.dispatch({
+			actionType: ActionTypes.RECEIVED_ONE_RETWEET,
+			rawRetweet
+		})
+	},
 	receivedUsers(rawUsers){
 		AppDispatcher.dispatch({
 			actionType: ActionTypes.RECEIVED_USERS,
 			rawUsers: rawUsers
+		})
+	},
+	receivedOneFollower(rawFollower){
+		AppDispatcher.dispatch({
+			actionType: ActionTypes.RECEIVED_ONE_FOLLOWER,
+			rawFollower
 		})
 	}
 }

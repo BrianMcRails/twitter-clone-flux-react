@@ -8,5 +8,8 @@ export default {
 	},
 	sendTweet(body){
 		API.createTweet(body);
+	},
+	sendRetweet(body, name){
+		API.createRetweet(body, name);
 	}
 }

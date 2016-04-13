@@ -24835,7 +24835,6 @@
 	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; } //since we used link, we need to import link property from router library
 
 
-	_tweetactions2.default.getAllTweets();
 	var getAppState = function getAppState() {
 		return { tweetsList: _tweetstore2.default.getAll() };
 	};
@@ -24853,32 +24852,11 @@
 
 			return _this;
 		}
-		// formattedTweets(tweetsList){
-		// 	let formattedList = tweetsList.map(tweet => {
-		// 		tweet.formattedDate = moment(tweet.created_at).fromNow();
-		// 		return tweet;
-		// 	});
-		// 	return {
-		// 		tweetsList: formattedList
-		// 	};
-		// }
-
 
 		_createClass(Index, [{
-			key: 'addTweet',
-			value: function addTweet(tweetToAdd) {
-				// $.post("/tweets", {body: tweetToAdd})
-				// .success( savedTweet => {
-				// 	let newTweetsList = this.state.tweetsList;
-				// 	newTweetsList.unshift(savedTweet);
-				// 	//newTweetsList.unshift({id: Date.now(), name: 'Guest', body: tweetToAdd });
-				// 	this.setState(this.formattedTweets(newTweetsList));
-				// })
-				// .error(error => console.log(error));
-			}
-		}, {
 			key: 'componentDidMount',
 			value: function componentDidMount() {
+				_tweetactions2.default.getAllTweets();
 				_tweetstore2.default.addChangeListener(this._onChange);
 				// $.ajax("/tweets")
 				// .success(data => this.setState(this.formattedTweets(data)))
@@ -25025,6 +25003,9 @@
 		},
 		sendTweet: function sendTweet(body) {
 			_API2.default.createTweet(body);
+		},
+		sendRetweet: function sendRetweet(body, name) {
+			_API2.default.createRetweet(body, name);
 		}
 	};
 
@@ -25064,9 +25045,23 @@
 				return console.log(error);
 			});
 		},
+		createRetweet: function createRetweet(body, name) {
+			$.post('/tweets', { body: body, is_retweet: 1, retweet_name: name }).success(function (rawRetweet) {
+				return _serveractions2.default.receivedOneRetweet(rawRetweet);
+			}).error(function (error) {
+				return console.log(error);
+			});
+		},
 		getAllUsers: function getAllUsers() {
 			$.get('/followers/random').success(function (rawUsers) {
 				return _serveractions2.default.receivedUsers(rawUsers);
+			}).error(function (error) {
+				return console.log(error);
+			});
+		},
+		followUser: function followUser(userId) {
+			$.post("/followers", { user_id: userId }).success(function (rawFollower) {
+				return _serveractions2.default.receivedOneFollower(rawFollower);
 			}).error(function (error) {
 				return console.log(error);
 			});
@@ -25111,10 +25106,22 @@
 				rawTweet: rawTweet //same as rawTweet: rawTweet
 			});
 		},
+		receivedOneRetweet: function receivedOneRetweet(rawRetweet) {
+			_dispatcher2.default.dispatch({
+				actionType: _constants2.default.RECEIVED_ONE_RETWEET,
+				rawRetweet: rawRetweet
+			});
+		},
 		receivedUsers: function receivedUsers(rawUsers) {
 			_dispatcher2.default.dispatch({
 				actionType: _constants2.default.RECEIVED_USERS,
 				rawUsers: rawUsers
+			});
+		},
+		receivedOneFollower: function receivedOneFollower(rawFollower) {
+			_dispatcher2.default.dispatch({
+				actionType: _constants2.default.RECEIVED_ONE_FOLLOWER,
+				rawFollower: rawFollower
 			});
 		}
 	};
@@ -25468,7 +25475,9 @@
 	exports.default = {
 		RECEIVED_TWEETS: 'RECEIVED_TWEETS',
 		RECEIVED_ONE_TWEET: 'RECEIVED_ONE_TWEET',
-		RECEIVED_USERS: 'RECEIVED_USERS'
+		RECEIVED_ONE_RETWEET: 'RECEIVED_ONE_RETWEET',
+		RECEIVED_USERS: 'RECEIVED_USERS',
+		RECEIVED_ONE_FOLLOWER: 'RECEIVED_ONE_FOLLOWER'
 	};
 
 /***/ },
@@ -25549,6 +25558,10 @@
 
 	var _react2 = _interopRequireDefault(_react);
 
+	var _tweetactions = __webpack_require__(218);
+
+	var _tweetactions2 = _interopRequireDefault(_tweetactions);
+
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -25567,6 +25580,12 @@
 	  }
 
 	  _createClass(Tweet, [{
+	    key: "retweet",
+	    value: function retweet(event) {
+	      event.preventDefault();
+	      _tweetactions2.default.sendRetweet(this.props.body, this.props.name);
+	    }
+	  }, {
 	    key: "render",
 	    value: function render() {
 	      return _react2.default.createElement(
@@ -25576,7 +25595,14 @@
 	        _react2.default.createElement(
 	          "span",
 	          { className: "title" },
-	          this.props.name
+	          this.props.name,
+	          " ",
+	          this.props.is_retweet ? _react2.default.createElement(
+	            "span",
+	            { className: "blue-text" },
+	            "Retweeting: ",
+	            this.props.retweet_name
+	          ) : null
 	        ),
 	        _react2.default.createElement(
 	          "time",
@@ -25587,6 +25613,16 @@
 	          "p",
 	          null,
 	          this.props.body
+	        ),
+	        _react2.default.createElement(
+	          "a",
+	          { className: "secondary-content btn-floating grey",
+	            onClick: this.retweet.bind(this) },
+	          _react2.default.createElement(
+	            "i",
+	            { className: "small material-icons" },
+	            "repeat"
+	          )
 	        )
 	      );
 	    }
@@ -25671,6 +25707,9 @@
 				break;
 			case _constants2.default.RECEIVED_ONE_TWEET:
 				_tweets.unshift(action.rawTweet);
+				TweetStore.emitChange();
+			case _constants2.default.RECEIVED_ONE_RETWEET:
+				_tweets.unshift(action.rawRetweet);
 				TweetStore.emitChange();
 			default:
 		}
@@ -26162,8 +26201,20 @@
 				this.setState(getAppState());
 			}
 		}, {
+			key: 'followUser',
+			value: function followUser(userId) {
+				_useractions2.default.followUser(userId);
+			}
+		}, {
+			key: 'followClasses',
+			value: function followClasses(following) {
+				return "secondary-content btn-floating " + (following ? "green" : "grey");
+			}
+		}, {
 			key: 'render',
 			value: function render() {
+				var _this2 = this;
+
 				var users = this.state.users.map(function (user) {
 					return _react2.default.createElement(
 						'li',
@@ -26173,6 +26224,16 @@
 							'span',
 							{ className: 'title' },
 							user.name
+						),
+						_react2.default.createElement(
+							'a',
+							{ className: _this2.followClasses(user.following),
+								onClick: _this2.followUser.bind(_this2, user.id) },
+							_react2.default.createElement(
+								'i',
+								{ className: 'material-icons' },
+								'person_pin'
+							)
 						)
 					);
 				});
@@ -26240,6 +26301,7 @@
 	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
 	var _users = [];
+	var _followedIds = [];
 
 	var UserEventEmitter = function (_AppEventEmitter) {
 		_inherits(UserEventEmitter, _AppEventEmitter);
@@ -26253,7 +26315,10 @@
 		_createClass(UserEventEmitter, [{
 			key: "getAll",
 			value: function getAll() {
-				return _users;
+				return _users.map(function (user) {
+					user.following = _followedIds.indexOf(user.id) >= 0;
+					return user;
+				});
 			}
 		}]);
 
@@ -26268,6 +26333,10 @@
 		switch (action.actionType) {
 			case _constants2.default.RECEIVED_USERS:
 				_users = action.rawUsers;
+				UserStore.emitChange();
+				break;
+			case _constants2.default.RECEIVED_ONE_FOLLOWER:
+				_followedIds.push(action.rawFollower.user_id);
 				UserStore.emitChange();
 				break;
 			default:
@@ -26299,6 +26368,9 @@
 	exports.default = {
 		getAllUsers: function getAllUsers() {
 			_API2.default.getAllUsers();
+		},
+		followUser: function followUser(userId) {
+			_API2.default.followUser(userId);
 		}
 	};
 
