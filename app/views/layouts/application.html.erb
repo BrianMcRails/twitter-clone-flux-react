@@ -15,7 +15,17 @@
   <%= csrf_meta_tags %>
 </head>
 <body>
+  <nav>
+    <div class="nav-wrapper">
+      <%= link_to "Twitter with React/Flux/Rails", root_path, class: "brand-logo"%>
 
+      <ul id="nav-mobile" class="right hide-on-med-and-down">
+        <li><%= link_to "Profile", "/profile" %></li>
+        <li><%= link_to "Explore", "/#/follow" %></li>
+        <li><%= link_to "Friends", "/#/friends" %></li>
+      </ul>
+    </div>
+  </nav>
 <div class="right">
 <% if user_signed_in? %>
 	Welcome
